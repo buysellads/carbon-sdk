@@ -1,0 +1,64 @@
+{
+  "name": "@carbonads/sdk",
+  "version": "0.1.0",
+  "description": "Carbon Ads SDK — ad components for terminal and web apps",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./ink": {
+      "types": "./dist/ink/index.d.ts",
+      "import": "./dist/ink/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test:fetch": "node test/fetch.js",
+    "test:ink": "node --import tsx test/ink.tsx"
+  },
+  "peerDependencies": {
+    "ink": ">=6.0.0",
+    "react": ">=19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "ink": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "ink": "^6.8.0",
+    "react": "^19.1.0",
+    "tsup": "^8.4.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nicholaskim6/carbon-sdk.git"
+  },
+  "keywords": [
+    "carbon-ads",
+    "ads",
+    "cli",
+    "terminal",
+    "ink",
+    "sdk"
+  ]
+}

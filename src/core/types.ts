@@ -1,0 +1,69 @@
+/** Raw ad object from the Carbon Ads JSON API */
+export interface AdResponse {
+  ads: RawAd[];
+}
+
+/** Raw ad data as returned by srv.carbonads.net */
+export interface RawAd {
+  /** Standard fields (always present for active ads) */
+  description?: string;
+  image?: string;
+  smallImage?: string;
+  statlink?: string;
+  statimp?: string;
+  statview?: string;
+  should_record_viewable?: string;
+  bannerid?: string;
+  creativeid?: string;
+  zonekey?: string;
+  zoneid?: string;
+  ad_via_link?: string;
+  timestamp?: string;
+
+  /** Cover/rich format fields (only present for cover-enabled zones) */
+  backgroundColor?: string;
+  callToAction?: string;
+  company?: string;
+  companyTagline?: string;
+  ctaBackgroundColor?: string;
+  ctaTextColor?: string;
+  largeImage?: string;
+  logo?: string;
+  textColor?: string;
+
+  /** Fallback fields */
+  fallbackLink?: string;
+  fallbackTitle?: string;
+
+  /** Other */
+  custom_css?: string;
+  pixel?: string;
+  title?: string;
+  freqcap?: string;
+}
+
+/** Processed ad data ready for rendering */
+export interface CarbonAd {
+  company: string;
+  description: string;
+  link: string;
+  statlink: string;
+  statviewUrl: string;
+  image: string;
+  smallImage: string;
+  largeImage: string;
+  logo: string;
+  backgroundColor: string;
+  callToAction: string;
+  companyTagline: string;
+  adViaLink: string;
+  pixel: string;
+}
+
+/** SDK configuration */
+export interface CarbonConfig {
+  /** Zone key (serve ID) */
+  serve: string;
+  /** Placement identifier */
+  placement: string;
+}
