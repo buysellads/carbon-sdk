@@ -25,7 +25,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test:fetch": "node test/fetch.js",
-    "test:ink": "node --import tsx test/ink.tsx"
+    "test:ink": "node --import tsx test/ink.tsx",
+    "prepublishOnly": "tsup"
   },
   "peerDependencies": {
     "ink": ">=6.0.0",
