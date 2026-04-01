@@ -12,8 +12,10 @@ function buildHeaders(
 ): Record<string, string> {
   const config = `(serve:${encodeURIComponent(options.serve)};placement:${encodeURIComponent(options.placement)})`;
 
-  // x-origin is required — the ad server uses it to determine which ad fields to return.
-  // In browsers, this would be window.location. In Node/CLI, we use a placeholder.
+  // x-origin tells the ad server which site is requesting the ad, so it can
+  // select the right campaign and return the correct fields. In browsers this
+  // is window.location. In Node/CLI there is no location, so we send a
+  // placeholder — the server still returns ads, but targeting is zone-based only.
   const origin =
     typeof globalThis.window !== "undefined"
       ? globalThis.window.location.toString()
@@ -25,6 +27,12 @@ function buildHeaders(
   };
 }
 
+/** Map raw API response to a normalized CarbonAd object.
+ *  Fallback chains reflect how the ad server populates fields:
+ *  - statlink → fallbackLink: click-tracking URL with fallback
+ *  - description → title: some campaigns only set title
+ *  - callToAction defaults to "Learn More" when the campaign omits it
+ */
 function processAd(raw: RawAd, placement: string): CarbonAd {
   const statlink = raw.statlink || raw.fallbackLink || "";
   const link = statlink ? applyTimestamp(ensureHttps(statlink)) : "";

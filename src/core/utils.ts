@@ -1,4 +1,7 @@
-/** Decode HTML entities for terminal display */
+/** Decode the HTML entities the Carbon ad server is known to return.
+ *  This is intentionally not a full HTML decoder — only the entities
+ *  that actually appear in ad copy are handled.
+ */
 export function htmlDecode(str: string): string {
   return str
     .replace(/&amp;/g, "&")
