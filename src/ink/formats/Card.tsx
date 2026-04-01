@@ -1,7 +1,6 @@
 import React from "react";
 import { Box, Text } from "ink";
 import type { CarbonAd } from "../../core/types.js";
-import { PoweredBy } from "../components/PoweredBy.js";
 import { AdLink } from "../components/AdLink.js";
 
 interface CardProps {

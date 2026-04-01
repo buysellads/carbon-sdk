@@ -12,12 +12,11 @@ interface CarbonAdProps {
   placement?: string;
 }
 
-let demoNoticeShown = false;
-
 export function CarbonAd({ serve, placement }: CarbonAdProps) {
   const [ad, setAd] = useState<CarbonAdData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [showNotice, setShowNotice] = useState(false);
 
   const isDemo = !serve;
 
@@ -30,6 +29,7 @@ export function CarbonAd({ serve, placement }: CarbonAdProps) {
         setAd(result);
         setLoading(false);
         if (!result) setError(true);
+        if (result && isDemo) setShowNotice(true);
       })
       .catch(() => {
         if (cancelled) return;
@@ -40,7 +40,7 @@ export function CarbonAd({ serve, placement }: CarbonAdProps) {
     return () => {
       cancelled = true;
     };
-  }, [serve, placement]);
+  }, [serve, placement, isDemo]);
 
   if (loading) {
     return (
@@ -54,13 +54,12 @@ export function CarbonAd({ serve, placement }: CarbonAdProps) {
     return null;
   }
 
-  const showNotice = isDemo && !demoNoticeShown;
-  if (showNotice) demoNoticeShown = true;
-
   return (
     <Box flexDirection="column">
       <Card ad={ad} />
-      {showNotice ? <Text dimColor>Using demo zone key. Get yours at {SIGNUP_URL}</Text> : null}
+      {showNotice ? (
+        <Text dimColor>Using demo zone key. Get yours at {SIGNUP_URL}</Text>
+      ) : null}
     </Box>
   );
 }

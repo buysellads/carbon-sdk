@@ -21,6 +21,9 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test:fetch": "node test/fetch.js",
     "test:ink": "node --import tsx test/ink.tsx"
   },
@@ -37,13 +40,19 @@
     }
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.4",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.0.1",
     "ink": "^6.8.0",
+    "prettier": "^3.8.1",
     "react": "^19.1.0",
     "tsup": "^8.4.0",
     "tsx": "^4.19.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.58.0"
   },
   "engines": {
     "node": ">=18.0.0"
