@@ -18,7 +18,6 @@ export function CarbonAd({ serve, placement }: CarbonAdProps) {
   const [error, setError] = useState(false);
   const [showNotice, setShowNotice] = useState(false);
 
-  const isDemo = !serve;
 
   useEffect(() => {
     let cancelled = false;
@@ -29,7 +28,9 @@ export function CarbonAd({ serve, placement }: CarbonAdProps) {
         setAd(result);
         setLoading(false);
         if (!result) setError(true);
-        if (result && isDemo) setShowNotice(true);
+        // isDemo is derived from serve, but inlined here to avoid
+        // a redundant dependency that would cause unnecessary refetches.
+        if (result && !serve) setShowNotice(true);
       })
       .catch(() => {
         if (cancelled) return;
@@ -40,7 +41,7 @@ export function CarbonAd({ serve, placement }: CarbonAdProps) {
     return () => {
       cancelled = true;
     };
-  }, [serve, placement, isDemo]);
+  }, [serve, placement]);
 
   if (loading) {
     return (

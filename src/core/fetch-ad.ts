@@ -73,7 +73,10 @@ export async function fetchAd(
       signal: AbortSignal.timeout(5000),
     });
 
-    if (!response.ok) return null;
+    if (!response.ok) {
+      console.warn(`[carbon-sdk] ad server returned ${response.status}`);
+      return null;
+    }
 
     const data = await response.json();
 
@@ -82,7 +85,9 @@ export async function fetchAd(
     }
 
     return processAd(data.ads[0], placement);
-  } catch {
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.warn(`[carbon-sdk] failed to fetch ad: ${message}`);
     return null;
   }
 }
