@@ -92,6 +92,25 @@ if (ad) {
 - `ink` >= 6.0.0
 - `react` >= 19.0.0
 
+## Development
+
+This project uses [pnpm](https://pnpm.io/) as its package manager.
+
+```bash
+pnpm install     # install dependencies
+pnpm build       # build to dist/
+pnpm dev         # build in watch mode
+pnpm lint        # run ESLint
+pnpm format      # format with Prettier
+```
+
+### Testing
+
+```bash
+pnpm test:fetch  # test core API (requires build)
+pnpm test:ink    # test Ink component (requires build)
+```
+
 ## License
 
 MIT
