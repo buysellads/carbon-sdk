@@ -31,7 +31,7 @@ function buildHeaders(
  *  Fallback chains reflect how the ad server populates fields:
  *  - statlink → fallbackLink: click-tracking URL with fallback
  *  - description → title: some campaigns only set title
- *  - callToAction defaults to "Learn More" when the campaign omits it
+ *  - callToAction passes through as-is (empty string if not set by campaign)
  */
 function processAd(raw: RawAd, placement: string): CarbonAd {
   const statlink = raw.statlink || raw.fallbackLink || "";
@@ -58,7 +58,7 @@ function processAd(raw: RawAd, placement: string): CarbonAd {
     largeImage: raw.largeImage || "",
     logo: raw.logo || "",
     backgroundColor: raw.backgroundColor || "",
-    callToAction: htmlDecode(raw.callToAction || "Learn More"),
+    callToAction: htmlDecode(raw.callToAction || ""),
     companyTagline: htmlDecode(raw.companyTagline || ""),
     adViaLink: raw.ad_via_link || "",
     pixel: raw.pixel || "",

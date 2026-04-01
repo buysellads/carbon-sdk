@@ -35,7 +35,9 @@ export function Card({ ad }: CardProps) {
         {tagline ? <Text>{tagline}</Text> : null}
       </Text>
       <Text>{ad.description.trim()}</Text>
-      <AdLink url={ad.link} label={`${ad.callToAction} →`} />
+      {ad.callToAction ? (
+        <AdLink url={ad.link} label={`${ad.callToAction} →`} />
+      ) : null}
       <Text dimColor>
         {leadingRule}
         <Text dimColor inverse>
