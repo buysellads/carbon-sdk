@@ -48,10 +48,15 @@
   "engines": {
     "node": ">=18.0.0"
   },
+  "author": "BuySellAds",
   "license": "MIT",
+  "homepage": "https://github.com/buysellads/carbon-sdk#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nicholaskim6/carbon-sdk.git"
+    "url": "https://github.com/buysellads/carbon-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/buysellads/carbon-sdk/issues"
   },
   "keywords": [
     "carbon-ads",
