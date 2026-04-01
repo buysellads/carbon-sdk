@@ -53,7 +53,7 @@
   "homepage": "https://github.com/buysellads/carbon-sdk#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/buysellads/carbon-sdk.git"
+    "url": "git+https://github.com/buysellads/carbon-sdk.git"
   },
   "bugs": {
     "url": "https://github.com/buysellads/carbon-sdk/issues"
