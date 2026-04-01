@@ -7,7 +7,9 @@ export interface FetchAdOptions {
   placement?: string;
 }
 
-function buildHeaders(options: Required<FetchAdOptions>): Record<string, string> {
+function buildHeaders(
+  options: Required<FetchAdOptions>,
+): Record<string, string> {
   const config = `(serve:${encodeURIComponent(options.serve)};placement:${encodeURIComponent(options.placement)})`;
 
   // x-origin is required — the ad server uses it to determine which ad fields to return.
@@ -56,7 +58,9 @@ function processAd(raw: RawAd, placement: string): CarbonAd {
 }
 
 /** Fetch an ad from the Carbon Ads API */
-export async function fetchAd(options?: FetchAdOptions): Promise<CarbonAd | null> {
+export async function fetchAd(
+  options?: FetchAdOptions,
+): Promise<CarbonAd | null> {
   const serve = options?.serve || DEFAULTS.serve;
   const placement = options?.placement || DEFAULTS.placement;
 
