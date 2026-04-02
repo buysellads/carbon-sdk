@@ -15,8 +15,9 @@ interface CarbonAdProps {
   /** Placement identifier. */
   placement?: string;
   /** Identifies the current interaction (e.g. conversation, session, command).
-   *  When this value changes, a new ad may be fetched if enough time has passed. */
-  interactionId?: string | number;
+   *  When this value changes, a new ad may be fetched if enough time has passed.
+   *  Use a static value like "main" for single-run CLI tools. */
+  interactionId: string | number;
   /** Fallback ad shown when no paid ad is available. */
   fallback?: CarbonAdFallback;
 }

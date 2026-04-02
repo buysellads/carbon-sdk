@@ -11,6 +11,7 @@ export { AdLink } from "./components/AdLink.js";
 interface RenderOptions {
   serve?: string;
   placement?: string;
+  interactionId?: string | number;
 }
 
 /**
@@ -26,6 +27,7 @@ export async function renderCarbonAd(options?: RenderOptions): Promise<void> {
     React.createElement(CarbonAd, {
       serve: options?.serve,
       placement: options?.placement,
+      interactionId: options?.interactionId ?? "main",
     }),
   );
   await waitUntilExit();
