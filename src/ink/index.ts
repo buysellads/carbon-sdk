@@ -4,6 +4,7 @@ import { CarbonAd } from "./CarbonAd.js";
 
 export { CarbonAd } from "./CarbonAd.js";
 export { Card } from "./formats/Card.js";
+export { CarbonBox } from "./components/CarbonBox.js";
 export { PoweredBy } from "./components/PoweredBy.js";
 export { AdLink } from "./components/AdLink.js";
 

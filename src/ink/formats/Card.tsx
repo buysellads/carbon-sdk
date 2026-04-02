@@ -1,50 +1,53 @@
-import React from "react";
-import { Box, Text } from "ink";
+import React, { memo } from "react";
+import { Text, Transform } from "ink";
 import type { CarbonAd } from "../../core/types.js";
 import { AdLink } from "../components/AdLink.js";
+import { CarbonBox } from "../components/CarbonBox.js";
 
 interface CardProps {
   ad: CarbonAd;
 }
 
-/**
- * Inline ad with top/bottom borders. Fills terminal width.
- *
- * ────────────────────────────────────────────────────────────────────────────
- * Acme Dev Tools — Build faster with AI
- * Powered by the latest ML models for code generation and review. Get Started
- * ───────────────────────────────────────────────────────────── ads via Carbon
- */
-export function Card({ ad }: CardProps) {
-  const width = process.stdout.columns || 80;
-  const rule = "─".repeat(width);
+/** Trim leading whitespace left by wrap-ansi (trim: false) on continuation lines.
+ *  ANSI-aware: skips escape sequences so bold/color codes don't block the trim. */
+const trimStart = (line: string) =>
+  line.replace(/^((?:\x1b\[[0-9;]*m)*)\s+/, "$1");
 
+function CardContent({ ad }: CardProps) {
   const tagline = ad.companyTagline || "";
-
-  const viaText = " ads via Carbon ";
-  const trailingRule = "──";
-  const leadingLen = width - viaText.length - trailingRule.length;
-  const leadingRule = "─".repeat(Math.max(leadingLen, 0));
+  const separator = ad.company && tagline ? " — " : "";
+  const headline = `${ad.company}${separator}${tagline}`;
 
   return (
-    <Box flexDirection="column" width={width}>
-      <Text dimColor>{rule}</Text>
-      <Text>
-        {ad.company ? <Text bold>{ad.company}</Text> : null}
-        {ad.company && tagline ? <Text dimColor> — </Text> : null}
-        {tagline ? <Text>{tagline}</Text> : null}
-      </Text>
-      <Text>{ad.description.trim()}</Text>
+    <>
+      {headline ? (
+        <Transform transform={trimStart}>
+          <Text bold>{headline}</Text>
+        </Transform>
+      ) : null}
+      <Transform transform={trimStart}>
+        <Text>{ad.description.trim()}</Text>
+      </Transform>
       {ad.callToAction ? (
         <AdLink url={ad.link} label={`${ad.callToAction} →`} />
       ) : null}
-      <Text dimColor>
-        {leadingRule}
-        <Text dimColor inverse>
-          {viaText}
-        </Text>
-        {trailingRule}
-      </Text>
-    </Box>
+    </>
   );
 }
+
+/**
+ * Ad card inside a CarbonBox border.
+ *
+ * ╭──────────────────────────────────────────────────────────────────────────╮
+ * │ Acme Dev Tools — Build faster with AI                                    │
+ * │ Powered by the latest ML models for code generation and review.          │
+ * │ Get Started →                                                            │
+ * ╰──────────────────────────────────────────────────── ads via Carbon ──────╯
+ */
+export const Card = memo(function Card({ ad }: CardProps) {
+  return (
+    <CarbonBox>
+      <CardContent ad={ad} />
+    </CarbonBox>
+  );
+});

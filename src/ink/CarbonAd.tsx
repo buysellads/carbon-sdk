@@ -1,23 +1,79 @@
-import React, { useEffect, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { Box, Text } from "ink";
 import { fetchAd } from "../core/fetch-ad.js";
 import { SIGNUP_URL } from "../core/defaults.js";
-import type { CarbonAd as CarbonAdData } from "../core/types.js";
+import type {
+  CarbonAd as CarbonAdData,
+  CarbonAdFallback,
+} from "../core/types.js";
 import { Card } from "./formats/Card.js";
+import { CarbonBox } from "./components/CarbonBox.js";
 
 interface CarbonAdProps {
   /** Zone key. Defaults to demo key. */
   serve?: string;
   /** Placement identifier. */
   placement?: string;
+  /** Identifies the current interaction (e.g. conversation, session, command).
+   *  When this value changes, a new ad may be fetched if enough time has passed. */
+  interactionId?: string | number;
+  /** Fallback ad shown when no paid ad is available. */
+  fallback?: CarbonAdFallback;
 }
 
-export function CarbonAd({ serve, placement }: CarbonAdProps) {
-  const [ad, setAd] = useState<CarbonAdData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const [showNotice, setShowNotice] = useState(false);
+function fallbackToAd(fallback: CarbonAdFallback): CarbonAdData {
+  return {
+    company: fallback.company,
+    description: fallback.description,
+    companyTagline: fallback.companyTagline || "",
+    callToAction: fallback.callToAction || "",
+    link: fallback.link || "",
+    statlink: "",
+    statviewUrl: "",
+    image: "",
+    smallImage: "",
+    largeImage: "",
+    logo: "",
+    backgroundColor: "",
+    adViaLink: "",
+    pixel: "",
+  };
+}
 
+function Skeleton({ fallback }: { fallback: CarbonAdFallback }) {
+  const [dim, setDim] = useState(true);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setDim((d) => !d);
+    }, 600);
+    return () => clearInterval(timer);
+  }, []);
+
+  const tagline = fallback.companyTagline || "";
+  const separator = fallback.company && tagline ? " — " : "";
+  const headline = `${fallback.company}${separator}${tagline}`;
+
+  return (
+    <Box flexDirection="column">
+      {headline ? (
+        <Text dimColor={dim} color="gray">{"▒".repeat(headline.length)}</Text>
+      ) : null}
+      <Text dimColor={dim} color="gray">{"▒".repeat(fallback.description.length)}</Text>
+      {fallback.callToAction ? (
+        <Text dimColor={dim} color="gray">{"▒".repeat(`${fallback.callToAction} →`.length)}</Text>
+      ) : null}
+    </Box>
+  );
+}
+
+const CarbonAdInner = memo(function CarbonAdInner({
+  serve,
+  placement,
+  fallback,
+}: Omit<CarbonAdProps, "interactionId">) {
+  const [ad, setAd] = useState<CarbonAdData | null | undefined>(undefined);
+  const showNotice = ad && !serve;
 
   useEffect(() => {
     let cancelled = false;
@@ -25,17 +81,11 @@ export function CarbonAd({ serve, placement }: CarbonAdProps) {
     fetchAd({ serve, placement })
       .then((result) => {
         if (cancelled) return;
-        setAd(result);
-        setLoading(false);
-        if (!result) setError(true);
-        // isDemo is derived from serve, but inlined here to avoid
-        // a redundant dependency that would cause unnecessary refetches.
-        if (result && !serve) setShowNotice(true);
+        setAd(result ?? null);
       })
       .catch(() => {
         if (cancelled) return;
-        setLoading(false);
-        setError(true);
+        setAd(null);
       });
 
     return () => {
@@ -43,15 +93,27 @@ export function CarbonAd({ serve, placement }: CarbonAdProps) {
     };
   }, [serve, placement]);
 
-  if (loading) {
-    return (
-      <Box>
-        <Text dimColor>Loading ad...</Text>
-      </Box>
-    );
+  // Loading: show skeleton matching house ad shape
+  if (ad === undefined) {
+    if (fallback) {
+      return (
+        <CarbonBox>
+          <Skeleton fallback={fallback} />
+        </CarbonBox>
+      );
+    }
+    return null;
   }
 
-  if (error || !ad) {
+  // Error/empty: show fallback house ad if provided
+  if (!ad) {
+    if (fallback) {
+      return (
+        <Box flexDirection="column">
+          <Card ad={fallbackToAd(fallback)} />
+        </Box>
+      );
+    }
     return null;
   }
 
@@ -63,4 +125,20 @@ export function CarbonAd({ serve, placement }: CarbonAdProps) {
       ) : null}
     </Box>
   );
-}
+});
+
+export const CarbonAd = memo(function CarbonAd({
+  serve,
+  placement,
+  interactionId,
+  fallback,
+}: CarbonAdProps) {
+  return (
+    <CarbonAdInner
+      key={interactionId}
+      serve={serve}
+      placement={placement}
+      fallback={fallback}
+    />
+  );
+});

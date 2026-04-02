@@ -60,6 +60,15 @@ export interface CarbonAd {
   pixel: string;
 }
 
+/** Publisher-provided fallback ad shown during loading and when no paid ad is available. */
+export interface CarbonAdFallback {
+  company: string;
+  description: string;
+  companyTagline?: string;
+  callToAction?: string;
+  link?: string;
+}
+
 /** SDK configuration */
 export interface CarbonConfig {
   /** Zone key (serve ID) */
