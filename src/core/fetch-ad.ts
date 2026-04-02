@@ -65,12 +65,36 @@ function processAd(raw: RawAd, placement: string): CarbonAd {
   };
 }
 
-/** Fetch an ad from the Carbon Ads API */
+const MIN_IMPRESSION_MS = 30_000;
+
+interface CachedAd {
+  key: string;
+  ad: CarbonAd | null;
+  fetchedAt: number;
+}
+
+let cache: CachedAd | undefined;
+
+/** Fetch an ad from the Carbon Ads API.
+ *
+ *  Returns the cached ad when the same zone is requested within 30 seconds
+ *  of the last fetch to guarantee a minimum impression window. After 30
+ *  seconds, the next call fetches a fresh ad from the server.
+ */
 export async function fetchAd(
   options?: FetchAdOptions,
 ): Promise<CarbonAd | null> {
   const serve = options?.serve || DEFAULTS.serve;
   const placement = options?.placement || DEFAULTS.placement;
+  const key = `${serve}:${placement}`;
+
+  if (
+    cache &&
+    cache.key === key &&
+    Date.now() - cache.fetchedAt < MIN_IMPRESSION_MS
+  ) {
+    return cache.ad;
+  }
 
   const url = `https://${SRV_HOST}/ads/${encodeURIComponent(serve)}.json?segment=placement:${encodeURIComponent(placement)}`;
   const headers = buildHeaders({ serve, placement });
@@ -92,7 +116,9 @@ export async function fetchAd(
       return null;
     }
 
-    return processAd(data.ads[0], placement);
+    const ad = processAd(data.ads[0], placement);
+    cache = { key, ad, fetchedAt: Date.now() };
+    return ad;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.warn(`[carbon-sdk] failed to fetch ad: ${message}`);
