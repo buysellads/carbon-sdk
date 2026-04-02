@@ -65,7 +65,7 @@ function processAd(raw: RawAd, placement: string): CarbonAd {
   };
 }
 
-const MIN_IMPRESSION_MS = 30_000;
+const MIN_DISPLAY_MS = 30_000;
 const ERROR_COOLDOWN_MS = 5_000;
 
 interface ServedAd {
@@ -91,7 +91,7 @@ export async function fetchAd(
 
   const now = Date.now();
   if (lastServed && lastServed.key === key) {
-    const minDuration = lastServed.ad ? MIN_IMPRESSION_MS : ERROR_COOLDOWN_MS;
+    const minDuration = lastServed.ad ? MIN_DISPLAY_MS : ERROR_COOLDOWN_MS;
     if (now - lastServed.servedAt < minDuration) {
       return lastServed.ad;
     }
