@@ -36,6 +36,38 @@ function Spinner({ label }: { label: string }) {
   );
 }
 
+// --house-ads: no paid ads, fallback renders as house ad
+// --no-ads:    no paid ads AND no fallback, ad slot is empty
+const simulateNoAds = process.argv.includes("--house-ads") || process.argv.includes("--no-ads");
+const omitFallback = process.argv.includes("--no-ads");
+if (simulateNoAds) {
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async (input, init) => {
+    const url = typeof input === "string" ? input : input.toString();
+    if (url.includes("carbonads.net")) {
+      // Mimics the real server response when no paid ad is available:
+      // an ads array with an entry that has tracking fields but no
+      // statlink, description, company, etc.
+      return new Response(
+        JSON.stringify({
+          ads: [
+            {
+              active: "1",
+              noincrement: "1",
+              rendering: "carbon",
+              should_record_viewable: "1",
+              timestamp: String(Math.floor(Date.now() / 1000)),
+            },
+            {},
+          ],
+        }),
+        { status: 200 },
+      );
+    }
+    return realFetch(input, init);
+  };
+}
+
 function App() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -64,13 +96,15 @@ function App() {
     <Box flexDirection="column" gap={1}>
       <CarbonAd
         interactionId={turnCount}
-        fallback={{
-          company: "Acme CLI",
-          description: "Build faster with our developer toolkit for the terminal.",
-          companyTagline: "Dev tools for the terminal",
-          callToAction: "Learn More",
-          link: "https://acme.dev",
-        }}
+        {...(omitFallback ? {} : {
+          fallback: {
+            company: "Acme CLI",
+            description: "Build faster with our developer toolkit for the terminal.",
+            companyTagline: "Dev tools for the terminal",
+            callToAction: "Learn More",
+            link: "https://acme.dev",
+          },
+        })}
       />
 
       <Box flexDirection="column">

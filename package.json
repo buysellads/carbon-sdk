@@ -26,6 +26,8 @@
     "format:check": "prettier --check .",
     "test:fetch": "node test/fetch.js",
     "test:ink": "node --import tsx test/ink.tsx",
+    "test:ink:house-ads": "node --import tsx test/ink.tsx --house-ads",
+    "test:ink:no-ads": "node --import tsx test/ink.tsx --no-ads",
     "prepublishOnly": "tsup"
   },
   "peerDependencies": {
