@@ -68,19 +68,19 @@ function processAd(raw: RawAd, placement: string): CarbonAd {
 const MIN_IMPRESSION_MS = 30_000;
 const ERROR_COOLDOWN_MS = 5_000;
 
-interface CachedAd {
+interface ServedAd {
   key: string;
   ad: CarbonAd | null;
-  fetchedAt: number;
+  servedAt: number;
 }
 
-let cache: CachedAd | undefined;
+let lastServed: ServedAd | undefined;
 
 /** Fetch an ad from the Carbon Ads API.
  *
- *  Returns the cached ad when the same zone is requested within 30 seconds
- *  of the last fetch to guarantee a minimum impression window. After 30
- *  seconds, the next call fetches a fresh ad from the server.
+ *  Returns the current ad when the same zone is requested within the
+ *  minimum display window (30s) so the ad is not replaced too quickly.
+ *  Failed fetches are held for a shorter cooldown (5s) before retrying.
  */
 export async function fetchAd(
   options?: FetchAdOptions,
@@ -90,10 +90,10 @@ export async function fetchAd(
   const key = `${serve}:${placement}`;
 
   const now = Date.now();
-  if (cache && cache.key === key) {
-    const ttl = cache.ad ? MIN_IMPRESSION_MS : ERROR_COOLDOWN_MS;
-    if (now - cache.fetchedAt < ttl) {
-      return cache.ad;
+  if (lastServed && lastServed.key === key) {
+    const minDuration = lastServed.ad ? MIN_IMPRESSION_MS : ERROR_COOLDOWN_MS;
+    if (now - lastServed.servedAt < minDuration) {
+      return lastServed.ad;
     }
   }
 
@@ -108,24 +108,24 @@ export async function fetchAd(
 
     if (!response.ok) {
       console.warn(`[carbon-sdk] ad server returned ${response.status}`);
-      cache = { key, ad: null, fetchedAt: Date.now() };
+      lastServed = { key, ad: null, servedAt: Date.now() };
       return null;
     }
 
     const data = await response.json();
 
     if (!data || !Array.isArray(data.ads) || data.ads.length === 0) {
-      cache = { key, ad: null, fetchedAt: Date.now() };
+      lastServed = { key, ad: null, servedAt: Date.now() };
       return null;
     }
 
     const ad = processAd(data.ads[0], placement);
-    cache = { key, ad, fetchedAt: Date.now() };
+    lastServed = { key, ad, servedAt: Date.now() };
     return ad;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.warn(`[carbon-sdk] failed to fetch ad: ${message}`);
-    cache = { key, ad: null, fetchedAt: Date.now() };
+    lastServed = { key, ad: null, servedAt: Date.now() };
     return null;
   }
 }
