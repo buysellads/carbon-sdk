@@ -46,7 +46,11 @@ function App() {
   return (
     <Box flexDirection="column">
       {/* your app content */}
-      <CarbonAd serve="YOUR_ZONE_KEY" placement="your-app" interactionId="main" />
+      <CarbonAd
+        serve="YOUR_ZONE_KEY"
+        placement="your-app"
+        interactionId="main"
+      />
     </Box>
   );
 }
@@ -107,12 +111,12 @@ if (ad) {
 
 ## Props
 
-| Prop            | Type               | Default  | Description                                                                |
-| --------------- | ------------------ | -------- | -------------------------------------------------------------------------- |
-| `serve`         | `string`           | Demo key | Your zone key from Carbon Ads                                              |
-| `placement`     | `string`           | `"demo"` | Placement identifier                                                       |
-| `interactionId` | `string \| number` | **required** | When this changes, a new ad may be fetched if enough time has passed   |
-| `fallback`      | `CarbonAdFallback` | —        | House ad shown during loading and when no paid ad is available             |
+| Prop            | Type               | Default      | Description                                                          |
+| --------------- | ------------------ | ------------ | -------------------------------------------------------------------- |
+| `serve`         | `string`           | Demo key     | Your zone key from Carbon Ads                                        |
+| `placement`     | `string`           | `"demo"`     | Placement identifier                                                 |
+| `interactionId` | `string \| number` | **required** | When this changes, a new ad may be fetched if enough time has passed |
+| `fallback`      | `CarbonAdFallback` | —            | House ad shown during loading and when no paid ad is available       |
 
 ## Requirements
 

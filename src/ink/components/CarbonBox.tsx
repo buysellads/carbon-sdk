@@ -25,7 +25,10 @@ function getWidth(): number {
  * │ content                                                              │
  * ╰──────────────────────────────────────────────── ads via Carbon ──────╯
  */
-export const CarbonBox = memo(function CarbonBox({ children, showAttribution = true }: CarbonBoxProps) {
+export const CarbonBox = memo(function CarbonBox({
+  children,
+  showAttribution = true,
+}: CarbonBoxProps) {
   const [width, setWidth] = useState(getWidth);
 
   // Ink's resize handler uses eraseLines(previousLineCount), which under-erases
@@ -39,9 +42,9 @@ export const CarbonBox = memo(function CarbonBox({ children, showAttribution = t
   // for a single clean paint.  On unmount, our listener is removed and the
   // original listeners are restored in their original order.
   useEffect(() => {
-    const priorListeners = process.stdout
-      .rawListeners("resize")
-      .slice() as ((...args: unknown[]) => void)[];
+    const priorListeners = process.stdout.rawListeners("resize").slice() as ((
+      ...args: unknown[]
+    ) => void)[];
 
     for (const listener of priorListeners) {
       process.stdout.off("resize", listener);

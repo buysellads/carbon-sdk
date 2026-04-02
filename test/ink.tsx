@@ -38,7 +38,8 @@ function Spinner({ label }: { label: string }) {
 
 // --house-ads: no paid ads, fallback renders as house ad
 // --no-ads:    no paid ads AND no fallback, ad slot is empty
-const simulateNoAds = process.argv.includes("--house-ads") || process.argv.includes("--no-ads");
+const simulateNoAds =
+  process.argv.includes("--house-ads") || process.argv.includes("--no-ads");
 const omitFallback = process.argv.includes("--no-ads");
 if (simulateNoAds) {
   const realFetch = globalThis.fetch;
@@ -86,7 +87,10 @@ function App() {
     const delay = 1000 + Math.random() * 2000;
     setTimeout(() => {
       const response = RESPONSES[Math.floor(Math.random() * RESPONSES.length)];
-      setMessages((msgs) => [...msgs, { role: "assistant", content: response }]);
+      setMessages((msgs) => [
+        ...msgs,
+        { role: "assistant", content: response },
+      ]);
       setThinking(false);
       setTurnCount((c) => c + 1);
     }, delay);
@@ -96,15 +100,18 @@ function App() {
     <Box flexDirection="column" gap={1}>
       <CarbonAd
         interactionId={turnCount}
-        {...(omitFallback ? {} : {
-          fallback: {
-            company: "Acme CLI",
-            description: "Build faster with our developer toolkit for the terminal.",
-            companyTagline: "Dev tools for the terminal",
-            callToAction: "Learn More",
-            link: "https://acme.dev",
-          },
-        })}
+        {...(omitFallback
+          ? {}
+          : {
+              fallback: {
+                company: "Acme CLI",
+                description:
+                  "Build faster with our developer toolkit for the terminal.",
+                companyTagline: "Dev tools for the terminal",
+                callToAction: "Learn More",
+                link: "https://acme.dev",
+              },
+            })}
       />
 
       <Box flexDirection="column">
@@ -122,8 +129,14 @@ function App() {
         <Spinner label="Thinking..." />
       ) : (
         <Box>
-          <Text bold color="blue">{"❯ "}</Text>
-          <TextInput value={input} onChange={setInput} onSubmit={handleSubmit} />
+          <Text bold color="blue">
+            {"❯ "}
+          </Text>
+          <TextInput
+            value={input}
+            onChange={setInput}
+            onSubmit={handleSubmit}
+          />
         </Box>
       )}
     </Box>

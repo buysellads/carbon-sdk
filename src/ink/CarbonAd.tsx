@@ -58,11 +58,17 @@ function Skeleton({ fallback }: { fallback: CarbonAdFallback }) {
   return (
     <Box flexDirection="column">
       {headline ? (
-        <Text dimColor={dim} color="gray">{"▒".repeat(headline.length)}</Text>
+        <Text dimColor={dim} color="gray">
+          {"▒".repeat(headline.length)}
+        </Text>
       ) : null}
-      <Text dimColor={dim} color="gray">{"▒".repeat(fallback.description.length)}</Text>
+      <Text dimColor={dim} color="gray">
+        {"▒".repeat(fallback.description.length)}
+      </Text>
       {fallback.callToAction ? (
-        <Text dimColor={dim} color="gray">{"▒".repeat(`${fallback.callToAction} →`.length)}</Text>
+        <Text dimColor={dim} color="gray">
+          {"▒".repeat(`${fallback.callToAction} →`.length)}
+        </Text>
       ) : null}
     </Box>
   );
