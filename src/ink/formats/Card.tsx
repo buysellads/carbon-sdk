@@ -6,6 +6,8 @@ import { CarbonBox } from "../components/CarbonBox.js";
 
 interface CardProps {
   ad: CarbonAd;
+  /** Show "ads via Carbon" attribution. Defaults to true. */
+  showAttribution?: boolean;
 }
 
 /** Trim leading whitespace left by wrap-ansi (trim: false) on continuation lines.
@@ -44,9 +46,9 @@ function CardContent({ ad }: CardProps) {
  * │ Get Started →                                                            │
  * ╰──────────────────────────────────────────────────── ads via Carbon ──────╯
  */
-export const Card = memo(function Card({ ad }: CardProps) {
+export const Card = memo(function Card({ ad, showAttribution }: CardProps) {
   return (
-    <CarbonBox>
+    <CarbonBox showAttribution={showAttribution}>
       <CardContent ad={ad} />
     </CarbonBox>
   );

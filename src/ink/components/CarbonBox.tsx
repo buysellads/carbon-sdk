@@ -4,6 +4,8 @@ import { Box, Text } from "ink";
 
 interface CarbonBoxProps {
   children: ReactNode;
+  /** Show "ads via Carbon" in the bottom border. Defaults to true. */
+  showAttribution?: boolean;
 }
 
 const LABEL = " ads via Carbon ";
@@ -23,7 +25,7 @@ function getWidth(): number {
  * │ content                                                              │
  * ╰──────────────────────────────────────────────── ads via Carbon ──────╯
  */
-export const CarbonBox = memo(function CarbonBox({ children }: CarbonBoxProps) {
+export const CarbonBox = memo(function CarbonBox({ children, showAttribution = true }: CarbonBoxProps) {
   const [width, setWidth] = useState(getWidth);
 
   // Ink's resize handler uses eraseLines(previousLineCount), which under-erases
@@ -61,8 +63,14 @@ export const CarbonBox = memo(function CarbonBox({ children }: CarbonBoxProps) {
 
   const innerWidth = width - 2;
   const topRule = "─".repeat(innerWidth);
-  const labelLen = LABEL.length + TRAILING.length;
-  const leadingRule = "─".repeat(Math.max(innerWidth - labelLen, 0));
+
+  let bottomRule: string;
+  if (showAttribution) {
+    const labelLen = LABEL.length + TRAILING.length;
+    bottomRule = "─".repeat(Math.max(innerWidth - labelLen, 0));
+  } else {
+    bottomRule = "─".repeat(innerWidth);
+  }
 
   return (
     <Box flexDirection="column" width={width}>
@@ -80,9 +88,14 @@ export const CarbonBox = memo(function CarbonBox({ children }: CarbonBoxProps) {
         {children}
       </Box>
       <Text dimColor>
-        ╰{leadingRule}
-        <Text inverse>{LABEL}</Text>
-        {TRAILING}╯
+        ╰{bottomRule}
+        {showAttribution ? (
+          <>
+            <Text inverse>{LABEL}</Text>
+            {TRAILING}
+          </>
+        ) : null}
+        ╯
       </Text>
     </Box>
   );
