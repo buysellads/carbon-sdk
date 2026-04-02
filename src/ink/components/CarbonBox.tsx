@@ -31,13 +31,19 @@ export const CarbonBox = memo(function CarbonBox({ children }: CarbonBoxProps) {
   // than Ink expects).  It also paints immediately with the stale React tree,
   // producing a visible ghost frame before our state update lands.
   //
-  // Fix: on mount, remove Ink's resize listener and handle resize ourselves.
-  // Our handler clears the screen and updates state; the React re-render then
-  // triggers Ink's reconciler → calculateLayout → onRender for a single clean
-  // paint.  Ink's listeners are restored on unmount.
+  // Fix: on mount, snapshot existing resize listeners and remove them so our
+  // handler is the only one that fires.  We clear the screen and update state;
+  // the React re-render triggers Ink's reconciler → calculateLayout → onRender
+  // for a single clean paint.  On unmount, our listener is removed and the
+  // original listeners are restored in their original order.
   useEffect(() => {
-    const inkListeners = process.stdout.rawListeners("resize") as Function[];
-    process.stdout.removeAllListeners("resize");
+    const priorListeners = process.stdout
+      .rawListeners("resize")
+      .slice() as ((...args: unknown[]) => void)[];
+
+    for (const listener of priorListeners) {
+      process.stdout.off("resize", listener);
+    }
 
     function onResize() {
       process.stdout.write(CLEAR_SCREEN);
@@ -47,8 +53,8 @@ export const CarbonBox = memo(function CarbonBox({ children }: CarbonBoxProps) {
 
     return () => {
       process.stdout.off("resize", onResize);
-      for (const listener of inkListeners) {
-        process.stdout.on("resize", listener as (...args: unknown[]) => void);
+      for (const listener of priorListeners) {
+        process.stdout.on("resize", listener);
       }
     };
   }, []);

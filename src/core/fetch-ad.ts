@@ -66,6 +66,7 @@ function processAd(raw: RawAd, placement: string): CarbonAd {
 }
 
 const MIN_IMPRESSION_MS = 30_000;
+const ERROR_COOLDOWN_MS = 5_000;
 
 interface CachedAd {
   key: string;
@@ -88,12 +89,12 @@ export async function fetchAd(
   const placement = options?.placement || DEFAULTS.placement;
   const key = `${serve}:${placement}`;
 
-  if (
-    cache &&
-    cache.key === key &&
-    Date.now() - cache.fetchedAt < MIN_IMPRESSION_MS
-  ) {
-    return cache.ad;
+  const now = Date.now();
+  if (cache && cache.key === key) {
+    const ttl = cache.ad ? MIN_IMPRESSION_MS : ERROR_COOLDOWN_MS;
+    if (now - cache.fetchedAt < ttl) {
+      return cache.ad;
+    }
   }
 
   const url = `https://${SRV_HOST}/ads/${encodeURIComponent(serve)}.json?segment=placement:${encodeURIComponent(placement)}`;
@@ -107,12 +108,14 @@ export async function fetchAd(
 
     if (!response.ok) {
       console.warn(`[carbon-sdk] ad server returned ${response.status}`);
+      cache = { key, ad: null, fetchedAt: Date.now() };
       return null;
     }
 
     const data = await response.json();
 
     if (!data || !Array.isArray(data.ads) || data.ads.length === 0) {
+      cache = { key, ad: null, fetchedAt: Date.now() };
       return null;
     }
 
@@ -122,6 +125,7 @@ export async function fetchAd(
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.warn(`[carbon-sdk] failed to fetch ad: ${message}`);
+    cache = { key, ad: null, fetchedAt: Date.now() };
     return null;
   }
 }
