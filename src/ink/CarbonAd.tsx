@@ -28,7 +28,7 @@ function fallbackToAd(fallback: CarbonAdFallback): CarbonAdData {
     description: fallback.description,
     companyTagline: fallback.companyTagline || "",
     callToAction: fallback.callToAction || "",
-    link: fallback.link || "",
+    link: fallback.link,
     statlink: "",
     statviewUrl: "",
     image: "",
@@ -122,7 +122,7 @@ export const CarbonAd = memo(function CarbonAd({
     if (fallback) {
       return (
         <Box flexDirection="column">
-          <Card ad={fallbackToAd(fallback)} />
+          <Card ad={fallbackToAd(fallback)} showAttribution={false} />
         </Box>
       );
     }

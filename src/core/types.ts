@@ -64,9 +64,9 @@ export interface CarbonAd {
 export interface CarbonAdFallback {
   company: string;
   description: string;
+  link: string;
   companyTagline?: string;
   callToAction?: string;
-  link?: string;
 }
 
 /** SDK configuration */

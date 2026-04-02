@@ -120,6 +120,15 @@ export async function fetchAd(
     }
 
     const ad = processAd(data.ads[0], placement);
+
+    // The server returns a tracking-only stub when no paid ad is available
+    // (has metadata like timestamp/rendering but no displayable content).
+    // Treat it as empty so the fallback can render instead.
+    if (!ad.description && !ad.statlink) {
+      lastServed = { key, ad: null, servedAt: Date.now() };
+      return null;
+    }
+
     lastServed = { key, ad, servedAt: Date.now() };
     return ad;
   } catch (err) {
