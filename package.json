@@ -48,6 +48,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.0.1",
     "ink": "^6.8.0",
+    "ink-text-input": "^6.0.0",
     "prettier": "^3.8.1",
     "react": "^19.1.0",
     "tsup": "^8.4.0",
