@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { Box, Text } from "ink";
 import { fetchAd } from "../core/fetch-ad.js";
 import { SIGNUP_URL } from "../core/defaults.js";
@@ -76,19 +76,10 @@ export const CarbonAd = memo(function CarbonAd({
 }: CarbonAdProps) {
   // undefined = initial load, null = error/empty, CarbonAdData = resolved
   const [ad, setAd] = useState<CarbonAdData | null | undefined>(undefined);
-  const prevInteractionId = useRef(interactionId);
   const showNotice = ad && !serve;
 
   useEffect(() => {
     let cancelled = false;
-
-    // On interactionId change (not initial mount), keep showing the current
-    // ad while fetching.  The 30s cache in fetchAd will return the same ad
-    // synchronously most of the time, avoiding any visible transition.
-    const isInitial = prevInteractionId.current === interactionId;
-    if (!isInitial) {
-      prevInteractionId.current = interactionId;
-    }
 
     fetchAd({ serve, placement })
       .then((result) => {
