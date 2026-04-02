@@ -65,12 +65,37 @@ function processAd(raw: RawAd, placement: string): CarbonAd {
   };
 }
 
-/** Fetch an ad from the Carbon Ads API */
+const MIN_DISPLAY_MS = 30_000;
+const ERROR_COOLDOWN_MS = 5_000;
+
+interface ServedAd {
+  key: string;
+  ad: CarbonAd | null;
+  servedAt: number;
+}
+
+let lastServed: ServedAd | undefined;
+
+/** Fetch an ad from the Carbon Ads API.
+ *
+ *  Returns the current ad when the same zone is requested within the
+ *  minimum display window (30s) so the ad is not replaced too quickly.
+ *  Failed fetches are held for a shorter cooldown (5s) before retrying.
+ */
 export async function fetchAd(
   options?: FetchAdOptions,
 ): Promise<CarbonAd | null> {
   const serve = options?.serve || DEFAULTS.serve;
   const placement = options?.placement || DEFAULTS.placement;
+  const key = `${serve}:${placement}`;
+
+  const now = Date.now();
+  if (lastServed && lastServed.key === key) {
+    const minDuration = lastServed.ad ? MIN_DISPLAY_MS : ERROR_COOLDOWN_MS;
+    if (now - lastServed.servedAt < minDuration) {
+      return lastServed.ad;
+    }
+  }
 
   const url = `https://${SRV_HOST}/ads/${encodeURIComponent(serve)}.json?segment=placement:${encodeURIComponent(placement)}`;
   const headers = buildHeaders({ serve, placement });
@@ -83,19 +108,33 @@ export async function fetchAd(
 
     if (!response.ok) {
       console.warn(`[carbon-sdk] ad server returned ${response.status}`);
+      lastServed = { key, ad: null, servedAt: Date.now() };
       return null;
     }
 
     const data = await response.json();
 
     if (!data || !Array.isArray(data.ads) || data.ads.length === 0) {
+      lastServed = { key, ad: null, servedAt: Date.now() };
       return null;
     }
 
-    return processAd(data.ads[0], placement);
+    const ad = processAd(data.ads[0], placement);
+
+    // The server returns a tracking-only stub when no paid ad is available
+    // (has metadata like timestamp/rendering but no displayable content).
+    // Treat it as empty so the fallback can render instead.
+    if (!ad.description && !ad.statlink) {
+      lastServed = { key, ad: null, servedAt: Date.now() };
+      return null;
+    }
+
+    lastServed = { key, ad, servedAt: Date.now() };
+    return ad;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.warn(`[carbon-sdk] failed to fetch ad: ${message}`);
+    lastServed = { key, ad: null, servedAt: Date.now() };
     return null;
   }
 }

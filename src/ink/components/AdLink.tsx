@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { Text } from "ink";
 
 interface AdLinkProps {
@@ -6,13 +6,20 @@ interface AdLinkProps {
   label: string;
 }
 
+const OSC = "\u001B]";
+const BEL = "\u0007";
+
 /** Displays a labeled link. Terminal users can copy the URL. */
-export function AdLink({ url, label }: AdLinkProps) {
-  // Use OSC 8 hyperlink escape sequence for terminals that support it
-  const href = `\u001B]8;;${url}\u0007${label}\u001B]8;;\u0007`;
+export const AdLink = memo(function AdLink({ url, label }: AdLinkProps) {
+  // OSC 8 hyperlink: separate the invisible sequences from the visible label
+  // so ink can measure the label width correctly for layout.
+  const open = `${OSC}8;;${url}${BEL}`;
+  const close = `${OSC}8;;${BEL}`;
   return (
     <Text bold underline>
-      {href}
+      {open}
+      {label}
+      {close}
     </Text>
   );
-}
+});

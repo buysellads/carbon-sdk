@@ -4,12 +4,14 @@ import { CarbonAd } from "./CarbonAd.js";
 
 export { CarbonAd } from "./CarbonAd.js";
 export { Card } from "./formats/Card.js";
+export { CarbonBox } from "./components/CarbonBox.js";
 export { PoweredBy } from "./components/PoweredBy.js";
 export { AdLink } from "./components/AdLink.js";
 
 interface RenderOptions {
   serve?: string;
   placement?: string;
+  interactionId?: string | number;
 }
 
 /**
@@ -25,6 +27,7 @@ export async function renderCarbonAd(options?: RenderOptions): Promise<void> {
     React.createElement(CarbonAd, {
       serve: options?.serve,
       placement: options?.placement,
+      interactionId: options?.interactionId ?? "main",
     }),
   );
   await waitUntilExit();
