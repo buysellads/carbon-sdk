@@ -1,11 +1,14 @@
 import React, { memo, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import { Box, Text } from "ink";
+import type { CarbonBoxStyle } from "../../core/types.js";
 
 interface CarbonBoxProps {
   children: ReactNode;
   /** Show "ads via Carbon" in the bottom border. Defaults to true. */
   showAttribution?: boolean;
+  /** Style overrides for the box container. */
+  style?: CarbonBoxStyle;
 }
 
 const LABEL = " ads via Carbon ";
@@ -28,8 +31,10 @@ function getWidth(): number {
 export const CarbonBox = memo(function CarbonBox({
   children,
   showAttribution = true,
+  style,
 }: CarbonBoxProps) {
-  const [width, setWidth] = useState(getWidth);
+  const { width: fixedWidth, borderColor } = style ?? {};
+  const [termWidth, setTermWidth] = useState(getWidth);
 
   // Ink's resize handler uses eraseLines(previousLineCount), which under-erases
   // when the terminal shrinks (the terminal re-wraps old content into more lines
@@ -52,7 +57,7 @@ export const CarbonBox = memo(function CarbonBox({
 
     function onResize() {
       process.stdout.write(CLEAR_SCREEN);
-      setWidth(getWidth());
+      setTermWidth(getWidth());
     }
     process.stdout.on("resize", onResize);
 
@@ -64,6 +69,7 @@ export const CarbonBox = memo(function CarbonBox({
     };
   }, []);
 
+  const width = fixedWidth ?? termWidth;
   const innerWidth = width - 2;
   const topRule = "─".repeat(innerWidth);
 
@@ -77,20 +83,22 @@ export const CarbonBox = memo(function CarbonBox({
 
   return (
     <Box flexDirection="column" width={width}>
-      <Text dimColor>╭{topRule}╮</Text>
+      <Text dimColor={!borderColor} color={borderColor}>
+        ╭{topRule}╮
+      </Text>
       <Box
         borderLeft
         borderRight
         borderTop={false}
         borderBottom={false}
         borderStyle="round"
-        borderDimColor
+        {...(borderColor ? { borderColor } : { borderDimColor: true })}
         paddingX={1}
         flexDirection="column"
       >
         {children}
       </Box>
-      <Text dimColor>
+      <Text dimColor={!borderColor} color={borderColor}>
         ╰{bottomRule}
         {showAttribution ? (
           <>

@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { Text, Transform } from "ink";
-import type { CarbonAd } from "../../core/types.js";
+import type { CarbonAd, CarbonBoxStyle } from "../../core/types.js";
 import { AdLink } from "../components/AdLink.js";
 import { CarbonBox } from "../components/CarbonBox.js";
 
@@ -8,11 +8,14 @@ interface CardProps {
   ad: CarbonAd;
   /** Show "ads via Carbon" attribution. Defaults to true. */
   showAttribution?: boolean;
+  /** Style overrides for the box container. */
+  style?: CarbonBoxStyle;
 }
 
 /** Trim leading whitespace left by wrap-ansi (trim: false) on continuation lines.
  *  ANSI-aware: skips escape sequences so bold/color codes don't block the trim. */
 const trimStart = (line: string) =>
+  // eslint-disable-next-line no-control-regex
   line.replace(/^((?:\x1b\[[0-9;]*m)*)\s+/, "$1");
 
 function CardContent({ ad }: CardProps) {
@@ -46,9 +49,13 @@ function CardContent({ ad }: CardProps) {
  * │ Get Started →                                                            │
  * ╰──────────────────────────────────────────────────── ads via Carbon ──────╯
  */
-export const Card = memo(function Card({ ad, showAttribution }: CardProps) {
+export const Card = memo(function Card({
+  ad,
+  showAttribution,
+  style,
+}: CardProps) {
   return (
-    <CarbonBox showAttribution={showAttribution}>
+    <CarbonBox showAttribution={showAttribution} style={style}>
       <CardContent ad={ad} />
     </CarbonBox>
   );

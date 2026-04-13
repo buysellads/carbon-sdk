@@ -5,6 +5,7 @@ import { SIGNUP_URL } from "../core/defaults.js";
 import type {
   CarbonAd as CarbonAdData,
   CarbonAdFallback,
+  CarbonBoxStyle,
 } from "../core/types.js";
 import { Card } from "./formats/Card.js";
 import { CarbonBox } from "./components/CarbonBox.js";
@@ -20,6 +21,8 @@ interface CarbonAdProps {
   interactionId: string | number;
   /** Fallback ad shown when no paid ad is available. */
   fallback?: CarbonAdFallback;
+  /** Style overrides for the box container. */
+  style?: CarbonBoxStyle;
 }
 
 function fallbackToAd(fallback: CarbonAdFallback): CarbonAdData {
@@ -79,6 +82,7 @@ export const CarbonAd = memo(function CarbonAd({
   placement,
   interactionId,
   fallback,
+  style,
 }: CarbonAdProps) {
   // undefined = initial load, null = error/empty, CarbonAdData = resolved
   const [ad, setAd] = useState<CarbonAdData | null | undefined>(undefined);
@@ -106,7 +110,7 @@ export const CarbonAd = memo(function CarbonAd({
   if (ad === undefined) {
     if (fallback) {
       return (
-        <CarbonBox>
+        <CarbonBox style={style}>
           <Skeleton fallback={fallback} />
         </CarbonBox>
       );
@@ -119,7 +123,11 @@ export const CarbonAd = memo(function CarbonAd({
     if (fallback) {
       return (
         <Box flexDirection="column">
-          <Card ad={fallbackToAd(fallback)} showAttribution={false} />
+          <Card
+            ad={fallbackToAd(fallback)}
+            showAttribution={false}
+            style={style}
+          />
         </Box>
       );
     }
@@ -128,7 +136,7 @@ export const CarbonAd = memo(function CarbonAd({
 
   return (
     <Box flexDirection="column">
-      <Card ad={ad} />
+      <Card ad={ad} style={style} />
       {showNotice ? (
         <Text dimColor>Using demo zone key. Get yours at {SIGNUP_URL}</Text>
       ) : null}

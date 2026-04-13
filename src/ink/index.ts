@@ -1,6 +1,7 @@
 import React from "react";
 import { render } from "ink";
 import { CarbonAd } from "./CarbonAd.js";
+import type { CarbonBoxStyle } from "../core/types.js";
 
 export { CarbonAd } from "./CarbonAd.js";
 export { Card } from "./formats/Card.js";
@@ -12,6 +13,8 @@ interface RenderOptions {
   serve?: string;
   placement?: string;
   interactionId?: string | number;
+  /** Style overrides for the box container. */
+  style?: CarbonBoxStyle;
 }
 
 /**
@@ -28,6 +31,7 @@ export async function renderCarbonAd(options?: RenderOptions): Promise<void> {
       serve: options?.serve,
       placement: options?.placement,
       interactionId: options?.interactionId ?? "main",
+      style: options?.style,
     }),
   );
   await waitUntilExit();

@@ -69,6 +69,14 @@ export interface CarbonAdFallback {
   callToAction?: string;
 }
 
+/** Style overrides for the CarbonBox border container. */
+export interface CarbonBoxStyle {
+  /** Fixed width in columns. Defaults to terminal width − 1. */
+  width?: number;
+  /** Border color (any Ink/chalk color string, e.g. "gray", "cyan", "#ff0"). Defaults to dim. */
+  borderColor?: string;
+}
+
 /** SDK configuration */
 export interface CarbonConfig {
   /** Zone key (serve ID) */

@@ -109,6 +109,27 @@ if (ad) {
 }
 ```
 
+### Styling the Box
+
+Customize the ad container's width and border color with the `style` prop:
+
+```tsx
+<CarbonAd
+  serve="YOUR_ZONE_KEY"
+  interactionId="main"
+  style={{ width: 60, borderColor: "gray" }}
+/>
+```
+
+This also works with the standalone helper:
+
+```ts
+await renderCarbonAd({
+  serve: "YOUR_ZONE_KEY",
+  style: { width: 60, borderColor: "cyan" },
+});
+```
+
 ## Props
 
 | Prop            | Type               | Default      | Description                                                          |
@@ -117,6 +138,14 @@ if (ad) {
 | `placement`     | `string`           | `"demo"`     | Placement identifier                                                 |
 | `interactionId` | `string \| number` | **required** | When this changes, a new ad may be fetched if enough time has passed |
 | `fallback`      | `CarbonAdFallback` | —            | House ad shown during loading and when no paid ad is available       |
+| `style`         | `CarbonBoxStyle`   | —            | Style overrides for the box container (see below)                    |
+
+### `CarbonBoxStyle`
+
+| Key           | Type     | Default            | Description                               |
+| ------------- | -------- | ------------------ | ----------------------------------------- |
+| `width`       | `number` | Terminal width − 1 | Fixed width in columns                    |
+| `borderColor` | `string` | Dim (gray)         | Border color (any Ink/chalk color string) |
 
 ## Requirements
 

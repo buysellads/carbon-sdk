@@ -4,6 +4,7 @@ export { DEFAULTS } from "./core/defaults.js";
 export type {
   CarbonAd,
   CarbonAdFallback,
+  CarbonBoxStyle,
   CarbonConfig,
   AdResponse,
   RawAd,
