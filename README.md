@@ -142,10 +142,12 @@ await renderCarbonAd({
 
 ### `CarbonBoxStyle`
 
-| Key           | Type     | Default            | Description                               |
-| ------------- | -------- | ------------------ | ----------------------------------------- |
-| `width`       | `number` | Terminal width − 1 | Fixed width in columns                    |
-| `borderColor` | `string` | Dim (gray)         | Border color (any Ink/chalk color string) |
+| Key           | Type     | Default             | Description                                                  |
+| ------------- | -------- | ------------------- | ------------------------------------------------------------ |
+| `width`       | `number` | Fills parent (100%) | Pin to a fixed column count; omit to inherit parent's layout |
+| `borderColor` | `string` | Dim (gray)          | Border color (any Ink/chalk color string)                    |
+
+By default the box flex-stretches to the parent container, so nesting it inside a width-constrained `Box` works as expected. Pass `style={{ width: N }}` to pin it to an exact column count.
 
 ## Requirements
 
