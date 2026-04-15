@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect } from "react";
+import React, { memo } from "react";
 import type { ReactNode } from "react";
 import { Box, Text } from "ink";
 import type { CarbonBoxStyle } from "../../core/types.js";
@@ -12,14 +12,12 @@ interface CarbonBoxProps {
 }
 
 const LABEL = " ads via Carbon ";
-const TRAILING = "─";
 
-// Clear visible screen + cursor home. Does NOT clear scrollback (\x1b[3J).
-const CLEAR_SCREEN = "\x1b[2J\x1b[H";
-
-function getWidth(): number {
-  return (process.stdout.columns || 80) - 1;
-}
+/** Default box width in columns.  Chosen to fit the classic 80-column
+ *  terminal with a small visual margin, while still being narrower than
+ *  any modern terminal so the box isn't forced to reflow on resize.
+ *  Publishers can override with `style={{ width: N }}`. */
+const DEFAULT_WIDTH = 78;
 
 /**
  * A bordered box with "ads via Carbon" embedded in the bottom border.
@@ -27,87 +25,46 @@ function getWidth(): number {
  * ╭──────────────────────────────────────────────────────────────────────╮
  * │ content                                                              │
  * ╰──────────────────────────────────────────────── ads via Carbon ──────╯
+ *
+ * Width model: the box defaults to a fixed column count (`DEFAULT_WIDTH`)
+ * so that resizing the terminal wider doesn't reflow the border lines.
+ * Terminals that soft-wrap on shrink leave ghost fragments when wide lines
+ * reflow (upstream Ink issue vadimdemedes/ink#907), and a full-bleed box
+ * would trigger that on every resize.  Pass `style={{ width: N }}` to pin
+ * a different width.
+ *
+ * Rendering model: Ink draws the whole border itself via `borderStyle="round"`
+ * and handles sizing through Yoga.  The attribution is a right-aligned child
+ * row with `marginBottom={-1}`, which pulls it down one line so its cells
+ * overlap Ink's bottom border row.  Empty cells in the overlay don't
+ * overwrite anything, so the border rule shows through everywhere except
+ * under the label.  No `measureElement`, no resize listener, no width state.
  */
 export const CarbonBox = memo(function CarbonBox({
   children,
   showAttribution = true,
   style,
 }: CarbonBoxProps) {
-  const { width: fixedWidth, borderColor } = style ?? {};
-  const [termWidth, setTermWidth] = useState(getWidth);
-
-  // Ink's resize handler uses eraseLines(previousLineCount), which under-erases
-  // when the terminal shrinks (the terminal re-wraps old content into more lines
-  // than Ink expects).  It also paints immediately with the stale React tree,
-  // producing a visible ghost frame before our state update lands.
-  //
-  // Fix: on mount, snapshot existing resize listeners and remove them so our
-  // handler is the only one that fires.  We clear the screen and update state;
-  // the React re-render triggers Ink's reconciler → calculateLayout → onRender
-  // for a single clean paint.  On unmount, our listener is removed and the
-  // original listeners are restored in their original order.
-  useEffect(() => {
-    const priorListeners = process.stdout.rawListeners("resize").slice() as ((
-      ...args: unknown[]
-    ) => void)[];
-
-    for (const listener of priorListeners) {
-      process.stdout.off("resize", listener);
-    }
-
-    function onResize() {
-      process.stdout.write(CLEAR_SCREEN);
-      setTermWidth(getWidth());
-    }
-    process.stdout.on("resize", onResize);
-
-    return () => {
-      process.stdout.off("resize", onResize);
-      for (const listener of priorListeners) {
-        process.stdout.on("resize", listener);
-      }
-    };
-  }, []);
-
-  const width = fixedWidth ?? termWidth;
-  const innerWidth = width - 2;
-  const topRule = "─".repeat(innerWidth);
-
-  let bottomRule: string;
-  if (showAttribution) {
-    const labelLen = LABEL.length + TRAILING.length;
-    bottomRule = "─".repeat(Math.max(innerWidth - labelLen, 0));
-  } else {
-    bottomRule = "─".repeat(innerWidth);
-  }
+  const { width, borderColor } = style ?? {};
+  const borderProps = borderColor ? { borderColor } : { borderDimColor: true };
+  const widthProp = typeof width === "number" ? width : DEFAULT_WIDTH;
 
   return (
-    <Box flexDirection="column" width={width}>
-      <Text dimColor={!borderColor} color={borderColor}>
-        ╭{topRule}╮
-      </Text>
-      <Box
-        borderLeft
-        borderRight
-        borderTop={false}
-        borderBottom={false}
-        borderStyle="round"
-        {...(borderColor ? { borderColor } : { borderDimColor: true })}
-        paddingX={1}
-        flexDirection="column"
-      >
-        {children}
-      </Box>
-      <Text dimColor={!borderColor} color={borderColor}>
-        ╰{bottomRule}
-        {showAttribution ? (
-          <>
-            <Text inverse>{LABEL}</Text>
-            {TRAILING}
-          </>
-        ) : null}
-        ╯
-      </Text>
+    <Box
+      flexDirection="column"
+      borderStyle="round"
+      {...borderProps}
+      paddingX={1}
+      width={widthProp}
+    >
+      {children}
+      {showAttribution ? (
+        <Box width="100%" justifyContent="flex-end" marginBottom={-1}>
+          <Text inverse wrap="truncate">
+            {LABEL}
+          </Text>
+        </Box>
+      ) : null}
     </Box>
   );
 });

@@ -142,10 +142,32 @@ await renderCarbonAd({
 
 ### `CarbonBoxStyle`
 
-| Key           | Type     | Default            | Description                               |
-| ------------- | -------- | ------------------ | ----------------------------------------- |
-| `width`       | `number` | Terminal width − 1 | Fixed width in columns                    |
-| `borderColor` | `string` | Dim (gray)         | Border color (any Ink/chalk color string) |
+| Key           | Type     | Default    | Description                               |
+| ------------- | -------- | ---------- | ----------------------------------------- |
+| `width`       | `number` | `78`       | Fixed column count for the ad box         |
+| `borderColor` | `string` | Dim (gray) | Border color (any Ink/chalk color string) |
+
+#### Why a fixed-width default?
+
+The box defaults to **78 columns** rather than stretching to fill its parent. This is deliberate: a full-bleed box reflows into more visual rows when the terminal is resized narrower, which exposes an upstream Ink rendering bug that leaves stale fragments on screen (see [Known Limitations](#known-limitations) below). A fixed width that fits any modern terminal (≥80 cols is effectively universal) sidesteps the problem for the common case — the box simply doesn't reflow when the user resizes the window.
+
+If you need a different size — for instance, to match a constrained parent container, or because your users are on narrower terminals — pass your own `width`:
+
+```tsx
+<CarbonAd serve="YOUR_ZONE_KEY" interactionId="main" style={{ width: 60 }} />
+```
+
+## Known Limitations
+
+### Ghost fragments when shrinking the terminal
+
+Dragging the terminal window **narrower than the box width** while an ad is on screen can leave stale line fragments above the ad. Growing the terminal is unaffected, and the next render cycle clears the fragments.
+
+This is an upstream Ink issue, not specific to this SDK — any Ink-rendered content is affected the same way. The root cause is that terminals which soft-wrap on resize (iTerm2, kitty, Windows Terminal) end up displaying more visual rows than Ink tracked when it emitted the frame, so Ink's erase pass under-clears. Terminals that don't reflow on resize (xterm and similar) are not affected.
+
+The [default fixed width](#why-a-fixed-width-default) (78 cols) is the primary mitigation — as long as the terminal stays wider than the box, no reflow can happen. You'll only see the artifact if the terminal is dragged narrower than the configured `style.width`.
+
+The Ink maintainers [explicitly declined](https://github.com/vadimdemedes/ink/pull/916) to patch this because no reliable way exists to detect whether the host terminal reflows, so any fix regresses the other camp. Tracked in [vadimdemedes/ink#907](https://github.com/vadimdemedes/ink/issues/907) and documented in [vadimdemedes/ink#920](https://github.com/vadimdemedes/ink/pull/920).
 
 ## Requirements
 

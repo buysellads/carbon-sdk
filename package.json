@@ -1,6 +1,6 @@
 {
   "name": "@carbonads/sdk",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Carbon Ads SDK — ad components for terminal and web apps",
   "type": "module",
   "exports": {
