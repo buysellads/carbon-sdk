@@ -13,6 +13,12 @@ interface CarbonBoxProps {
 
 const LABEL = " ads via Carbon ";
 
+/** Default box width in columns.  Chosen to fit the classic 80-column
+ *  terminal with a small visual margin, while still being narrower than
+ *  any modern terminal so the box isn't forced to reflow on resize.
+ *  Publishers can override with `style={{ width: N }}`. */
+const DEFAULT_WIDTH = 78;
+
 /**
  * A bordered box with "ads via Carbon" embedded in the bottom border.
  *
@@ -20,9 +26,12 @@ const LABEL = " ads via Carbon ";
  * │ content                                                              │
  * ╰──────────────────────────────────────────────── ads via Carbon ──────╯
  *
- * Width model: by default the box flex-stretches to fill its parent, so
- * publishers can control sizing through their own Ink layout.  Pass
- * `style.width` to pin it to an exact column count instead.
+ * Width model: the box defaults to a fixed column count (`DEFAULT_WIDTH`)
+ * so that resizing the terminal wider doesn't reflow the border lines.
+ * Terminals that soft-wrap on shrink leave ghost fragments when wide lines
+ * reflow (upstream Ink issue vadimdemedes/ink#907), and a full-bleed box
+ * would trigger that on every resize.  Pass `style={{ width: N }}` to pin
+ * a different width.
  *
  * Rendering model: Ink draws the whole border itself via `borderStyle="round"`
  * and handles sizing through Yoga.  The attribution is a right-aligned child
@@ -38,7 +47,7 @@ export const CarbonBox = memo(function CarbonBox({
 }: CarbonBoxProps) {
   const { width, borderColor } = style ?? {};
   const borderProps = borderColor ? { borderColor } : { borderDimColor: true };
-  const widthProp = typeof width === "number" ? width : "100%";
+  const widthProp = typeof width === "number" ? width : DEFAULT_WIDTH;
 
   return (
     <Box

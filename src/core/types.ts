@@ -71,7 +71,9 @@ export interface CarbonAdFallback {
 
 /** Style overrides for the CarbonBox border container. */
 export interface CarbonBoxStyle {
-  /** Fixed width in columns. Omit to flex-stretch to the parent container. */
+  /** Fixed width in columns.  Defaults to 78 — a safe value that fits any
+   *  modern terminal without forcing the box to reflow when the terminal
+   *  is resized.  Override only when you need a different size. */
   width?: number;
   /** Border color (any Ink/chalk color string, e.g. "gray", "cyan", "#ff0"). Defaults to dim. */
   borderColor?: string;
