@@ -149,6 +149,16 @@ await renderCarbonAd({
 
 By default the box flex-stretches to the parent container, so nesting it inside a width-constrained `Box` works as expected. Pass `style={{ width: N }}` to pin it to an exact column count.
 
+## Known Limitations
+
+### Ghost fragments when shrinking the terminal
+
+Dragging the terminal window **narrower** while an ad is on screen can leave stale line fragments above the ad. Growing the terminal is unaffected, and the next render cycle clears the fragments.
+
+This is an upstream Ink issue, not specific to this SDK — any Ink-rendered content is affected the same way. The root cause is that terminals which soft-wrap on resize (iTerm2, kitty, Windows Terminal) end up displaying more visual rows than Ink tracked when it emitted the frame, so Ink's erase pass under-clears. Terminals that don't reflow on resize (xterm and similar) are not affected.
+
+The Ink maintainers [explicitly declined](https://github.com/vadimdemedes/ink/pull/916) to patch this because no reliable way exists to detect whether the host terminal reflows, so any fix regresses the other camp. Tracked in [vadimdemedes/ink#907](https://github.com/vadimdemedes/ink/issues/907) and documented in [vadimdemedes/ink#920](https://github.com/vadimdemedes/ink/pull/920).
+
 ## Requirements
 
 - Node.js >= 18
